@@ -1,0 +1,329 @@
+\documentclass[12pt, parskip=half]{scrartcl}
+
+\usepackage{geometry}
+\geometry{
+	a4paper,
+	top=2cm,
+	bottom=1.5cm,
+	left=2cm,
+	right=2cm
+}
+
+% Sprache
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% Zusätzliche Aufzählungsmöglichkeiten
+\usepackage{enumitem}
+
+% Mathe-Pakete
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{tikz-cd}
+\usepackage{faktor}
+\usepackage{stmaryrd}
+\usepackage{amsthm}
+
+% Sonstige
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{soul}
+\usepackage{bbold}
+
+%Shortcuts
+
+
+\begin{document}
+
+\title{Obervations from Analysing Pressure and Temperature at Airports}
+
+\section{Introduction}
+We look at the METAR weather data (pressure and temperature) for various airports across the US.
+At the moment these are Miami International Airport (MIA), Boston Logan International Airport (BOS) and Columbia Airport (COU).
+Ultimately, we want to analyse the data to find patterns and correlations between pressure, temperature, and thunderstorms.
+
+
+\section{Weather Data}
+Becaus we are interested in intraday changes, we filter out seasonal changes by subtracting the moving 24 hour mean from the data.
+The METAR data is available hourly, which determines the resolution of our data.
+
+\subsection{Pressure}
+In Miami, the pressure follows a clear daily cycle, whose amplitude varies from month to month.
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_dailypressure_months.png}
+\caption{Pressure in Miami in 2023, with the daily average subtracted.}
+\end{figure}
+
+The year average of a day thus has a consistent, almost smooth shape.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_yearavg_pressureday.png}
+\caption{Daily Pressure in Miami, 2023, with the daily average subtracted, Averaged over the Year}
+\end{figure}
+
+The figures seem to indicate a clear pattern.
+The summer months have less deviation from the daily average during the day, but slightly more so during the night.\\
+
+
+If we isolate the deviations of the monthly averages from the yearly average, we can see that to some extent: 
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_dev_monthtoyearavg.png}
+\caption{Monthly Pressure Deviations from Yearly Day Average in Miami, 2023}
+\end{figure}
+
+However, there obviously are other factors that seem to play a bigger role (potentially poor data quality).\\
+
+For Boston (2023), the pattern looks similar but still encounters a lot of noise and has a smaller amplitude than the Miami data.
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/BOS23_monthlypress.png}
+\caption{Pressure in Boston in 2023, with the moving 24 hour average subtracted.}
+\end{figure}
+
+Another indicator for this is the fact that the yearly average of the daily pressure cycle has a significantly smaller amplitude than the Miami data (maximal amplitude 0.8 hPa vs. 1.2 hPa).\\
+The semidiurnal pressure cycle ultimately is a result of the sun heating the ground, which in turn heats the air above it.
+The fact that the amplitude is smaller in Boston than in Miami might be due to the fact that the sun is less intense in Boston than in Miami, especially during the winter months.
+
+
+\subsection{Temperature}
+In Miami, the temperature also follows a clear daily cycle, whose amplitude varies from month to month.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_dailytemp_months.png}
+\caption{Temperature in Miami in 2023, with the daily average subtracted.}
+\end{figure}
+
+We can clearly see the daily cycle, predominantly influenced by the sun.
+On the other hand, the months differ significantly from 11 AM to 5 PM, with especially the summer months carrying much more noise/deviation from the smooth daily cycle.//
+
+At this point, one could believe that the month have the same behaviour, just scaled differently, with the winter months having more of a deviation on average.
+We can easily check this by rescaling these very plots by their maximum value:
+
+\begin{figure}[!h]
+\label{fig:mia23_dailytemp_months_scaled}
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_dailytemp_months_scaled.png}
+\caption{Temperature in Miami in 2023, with the daily average subtracted, scaled by the maximum value of each month.}
+\end{figure}
+
+There still is a clearly visible differnce between the seasons.\\
+
+For Boston (2023), we can see a similar shape of the daily temperature cycle, as we would expect.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/BOS23_monthlytemp.png}
+\caption{Temperature in Boston in 2023, with the moving 24 hour average subtracted.}
+\end{figure}
+
+Here, the winter months have less of a deviation from their daily mean.
+This might be due to less sunlight in the winter months, a phenomenon that has a greater extent in the north of the US than in the south.
+Still, we need to bear in mind that the biggest deviation in temperature throughout the day occurs in the spring and late summer/autumn months.\\
+
+If we rescale the monthly averages by their maximum value, we can see that the daily cycle is - apart from its amplitude - very similar for all months:
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/BOS23_monthlytemp_rescaled.png}
+\caption{Temperature in Boston in 2023, with the daily average subtracted, scaled by the maximum value of each month.}
+\end{figure}
+
+
+
+\section{Thunderstorms}
+\subsection{Thunderstorm Frequency}
+The number of thunderstorms already differs significantly between the airports.
+
+\begin{table}[!h]
+\caption{Number of Thunderstorm Days per Year}
+\begin{tabular}{l|l|l|l|l}
+ & 2024 & 2023 & 2018 &   \\ \hline
+MIA & 84 & 124 &  & \\ \hline
+BOS &  & 20 &  &  \\ \hline 
+COU &  & 49 &  &  
+\end{tabular}
+\end{table}
+
+\subsection{Thunderstorm Occurence}
+
+\subsubsection{During the Day}
+We can see clear patterns in the occurence of thunderstorms during the day:
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_ths_hourly.png}
+\caption{Thunderstorm Occurence in Miami, 2023, by Hour}
+\end{figure}
+
+What we ultimately want to do is to find differences before/after thunderstorms. 
+Let us start by observing that the majority of thunderstorms occurs between 8 AM and 8 PM with a significant peak in the afternoon. 
+On the other hand, (almost) no thunderstorms occur in the hours between 9 PM and 5 AM. 
+Thus, it might be suitable to divide days not at midnight but at 2 AM to be able to observe the hours immidiately before and after the storms.\\
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/BOS23_ts_hourly.png}
+\caption{Thunderstorm Occurence in Boston, 2023, by Hour}
+\end{figure}
+Boston shows a different picture, which we have to make up for.
+The thunderstorms are more concentrated in the afternoon, some at night and none in the morning hours (5 AM to 12 AM).
+
+\subsubsection{Throughout the Year}
+We can also see that the thunderstorms are not evenly distributed throughout the year.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_ts_monthly.png}
+\caption{Thunderstorm Occurence in Miami, 2023, by Month}
+\end{figure}
+
+Miami sees most of its thunderstorms from April to September, peaking from June to September. (2023)\\
+For Boston, this is even more pronounced, with the thunderstorms only occurring in the summer months, peaking in July.
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/BOS23_ts_monthly.png}
+\caption{Thunderstorm Occurence in Boston, 2023, by Month}
+\end{figure}
+
+
+\subsection{Meterological Conditions around Thunderstorms}
+We can also look at the meterological conditions around thunderstorms.
+
+\subsubsection{Pressure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_monthlypress_withoutts.png}
+\caption{Monthly Pressure in Miami, 2023, Days without Thunderstorms}
+\end{figure}
+
+This doesn't give us too much insight, we follow roughly the same daily cycle as before, where the months differ slightly in amplitude.
+
+What may give us more insight is to look at the average daily pressure curve on thunderstorm days and non-thunderstorm days.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_press_withwithoutTS.png}
+\caption{Average Daily Pressure in Miami, 2023, on Thunderstorm Days and Non-Thunderstorm Summer Days}
+\end{figure}
+
+To make up for the bias that thunderstorms occur predominantly in the summer, we only looked at the summer months for our average non-thunderstorm day.
+We might be led to conclude that thunderstorms occur when the pressure is lower than average and cause it to rise/drop less than on other days.
+However, this is a very broad average and we need to look at the individual days to determine whether this is actually the case.\\
+
+For Boston, the number of thunderstorms is much lower, so we have to look at the individual days to get a feeling for the pressure behaviour either way.
+
+\subsubsection{Temperature}
+For temperatures, we can do a similar first analysis as for the pressure data.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_monthlytemp_withoutTS.png}
+\caption{Monthly Average of the Daily Temperature Curve in Miami, 2023, Days without Thunderstorms}
+\end{figure}
+
+Indeed, we see that compared to \ref{fig:mia23_dailytemp_months_scaled}, the summer months have a much more ponounced, smooth daily cycle.
+We can see this cycle even better when we also extract rain days from the data.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MIA23_monthlytemp_withoutRAts.png}
+\caption{Monthly Average of the Daily Temperature Curve in Miami, 2023, Days without Rain and Thunderstorms}
+\end{figure}
+
+We can see that the daily cycle is very smooth.
+How does this look for the average daily temperature on thunderstorm days and non-thunderstorm days?
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/MiA23_summertemp_withwithoutts.png}
+\caption{Average Daily Temperature in Miami, 2023, on Thunderstorm Days and Non-Thunderstorm Summer Days}
+\end{figure}
+
+We can see a smooth cycle for the non-thunderstom days, while the thunderstorm ones, even on average, have an abrupt cooling and a lot of noise.
+Yet again, this only indicates the direction but does not tell us the full story.
+We still need to go in this direction ourselves and look at the individual days to see how the temperature (and pressure) behaves before and after thunderstorms.
+
+\subsubsection{Filtering Days with Heavy Thunderstorms}
+Do be able to best observe the behaviour of meteorological conditions before and after thunderstorms, we filter out days with heavy thunderstorms. 
+We define a heavy thunderstorm as at least three thunderstorm records with at most a two hour gap between them or at least two thunderstorm records with at most 1.3 hours between them.
+
+\subsubsection{Temperature Drop Rate during Thunderstorms}
+One thing that becomes immediately obvious is that the temperature drops significantly during thunderstorms.
+If we take the period of a heavy thunderstorm, extend it by 50 minutes before and after, we can determine the maximal temperature drop rate during thunderstorms.
+The distribution of those looks like this:
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{images/MIA23_tempdrops_ts.png}
+\caption{Maximal Temperature Drop Rate during Thunderstorms in Miami, 2023}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{images/BOS24_tempdrops_ts.png}
+\caption{Maximal Temperature Drop Rate during Thunderstorms in Boston, 2024}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{images/COU23_tempdrop_ts.png}
+\caption{Maximal Temperature Drop Rate during Thunderstorms in Missouri, 2023}
+\end{figure}
+
+We can see that the temperature indeed undergoes severe drops during thunderstorms.
+Still, not that much does also surely come from closely spaced temperature records with some uncertainty.\\
+
+If we want to build a filter for heavy thunderstorms based on the temperature drop rate, we see that this works well for some years and airports, e.g. Miami 23 but poorly for others that also have big drops in temperature during other days as well.
+
+These drops can be a valid indicator for thunderstorms but certainly only one of many/a few.
+
+\subsubsection{Total Variation of Temperature during the Day}
+We can also look at the total variation of temperature during the day, which is defined as the difference between the maximum and minimum temperature during the day.
+This is easily collected and compared for thunderstorm and non-thunderstorm days:
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{images/MIA23_dailytemp_maxvar.png}
+\caption{Total Variation of Temperature during the Day in Miami, 2023, on Thunderstorm Days and Non-Thunderstorm Days}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{images/BOS24_dailytemp_maxvar.png}
+\caption{Total Variation of Temperature during the Day in Boston, 2024, on Thunderstorm Days and Non-Thunderstorm Days}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{images/COU23_dailytemp_maxvar.png}
+\caption{Total Variation of Temperature during the Day in Missouri, 2023, on Thunderstorm Days and Non-Thunderstorm Days}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{images/KA24_dailytemp_maxvar.png}
+\caption{Total Variation of Temperature during the Day in Karlsruhe, 2024, on Thunderstorm Days and Non-Thunderstorm Days}
+\end{figure}
+
+We can see that the total variation of temperature during the day is lower on average for thunderstorm days.
+However, there still is a significant portion of non-thunderstorm days that undergo very big temperature variations.\\
+
+We should be able to make use of this to filter out a lot of non-thunderstorm days by only considering days with a total variation of some threshold like 5 °C.
+There we can be confident that we only loose very few thunderstorm days, while we filter out a lot of non-thunderstorm days.
+
+\subsubsection{Filtering out Background Pressure Profiles}
+What we have not used at all so far is our pressure data. Because of the strong semidiurnal/diurnal pattern and a lot of fluctuation of the measurement, there often can't be seen such a clear behaviour as for the temperature (drops). 
+We thus filter out the background pressure cycle that occurs throughout this week/month/... and look at the deviations from that to hopefully get a clearer picture.
+
+\end{document}
